@@ -119,11 +119,11 @@
     <div class="generator-card" id="generatorCard">
         <h2>Генератор посилань на відео</h2>
         <p style="color: #666; font-size: 14px;">Вставте посилання на файл з Google Диска:</p>
-        <!-- Використовуємо форму для коректного перехоплення кліків -->
-        <onsubmit="return false;">
+        
+        <div>
             <input type="text" id="driveLinkInput" placeholder="https://drive.google.com/file/d/.../view?usp=sharing">
             <button type="button" id="generateBtn">Згенерувати посилання</button>
-        </onsubmit>
+        </div>
         
         <div class="result-box" id="resultBox">
             <strong>Готове посилання для студентів:</strong>
@@ -165,15 +165,14 @@
             document.getElementById('generatorCard').style.display = 'block';
         }
 
-        // Прив'язуємо подію кліку через JavaScript для надійності
         document.getElementById('generateBtn').addEventListener('click', function(e) {
-            e.preventDefault(); // Запобігає будь-яким випадковим перезавантаженням
+            e.preventDefault();
             
             const inputVal = document.getElementById('driveLinkInput').value.trim();
             const fileId = extractDriveId(inputVal);
 
             if (!fileId) {
-                alert('Будь ласка, введіть коректне посилання на Google Диск!');
+                alert('Помилка! Переконайтеся, що ви повністю скопіювали та вставили посилання з Google Диска (воно має містити /d/ та ID файлу).');
                 return;
             }
 
