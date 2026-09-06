@@ -22,6 +22,7 @@
             width: 100%;
             max-width: 500px;
             text-align: center;
+            display: none; /* За замовчуванням приховано, поки JS не вирішить що показувати */
         }
         .generator-card h2 {
             margin-top: 0;
@@ -80,10 +81,10 @@
             border-radius: 8px;
             overflow: hidden;
             background: #000;
-            display: none;
+            display: none; /* За замовчуванням приховано */
         }
         
-        /* Захисний шар на всю нижню панель плеєра (висота 60 пікселів знизу) */
+        /* Захисний шар на всю нижню панель плеєра (блокує доступ до шестерні/швидкості та повзунка) */
         .bottom-panel-blocker {
             position: absolute;
             bottom: 0;
@@ -91,7 +92,7 @@
             width: 100%;
             height: 60px;
             z-index: 20;
-            background: transparent; /* Можна змінити на rgba(255,0,0,0.4) для тесту */
+            background: transparent;
         }
 
         iframe {
@@ -130,7 +131,6 @@
 
     <!-- ПЛЕЄР -->
     <div class="video-container" id="videoContainer" oncontextmenu="return false;">
-        <!-- Невидимий щит поверх усієї нижньої панелі керування -->
         <div class="bottom-panel-blocker"></div>
         <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
     </div>
@@ -141,17 +141,18 @@
     </div>
 
     <script>
+        // Універсальна функція витягування ID з будь-якого формату посилання Google Диска
         function extractDriveId(url) {
             const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             return match ? match[1] : null;
         }
 
+        // Перевіряємо параметри при завантаженні сторінки
         const urlParams = new URLSearchParams(window.location.search);
         const fullLink = urlParams.get('url');
 
         if (fullLink) {
-            document.getElementById('generatorCard').style.display = 'none';
-            
+            // Режим ПЛЕЄРА для студентів
             const fileId = extractDriveId(fullLink);
             if (fileId) {
                 const iframe = document.getElementById('videoFrame');
@@ -161,9 +162,11 @@
                 document.getElementById('errorMessage').style.display = 'block';
             }
         } else {
+            // Режим ГЕНЕРАТОРА для викладача
             document.getElementById('generatorCard').style.display = 'block';
         }
 
+        // Функція генерації посилання
         function generateLink() {
             const inputVal = document.getElementById('driveLinkInput').value.trim();
             const fileId = extractDriveId(inputVal);
@@ -173,10 +176,11 @@
                 return;
             }
 
+            // Формуємо чисту базову адресу сайту без старих параметрів
             const baseUrl = window.location.href.split('?')[0];
             const finalLink = `${baseUrl}?url=${encodeURIComponent(inputVal)}`;
 
-            document.getElementById('resultLinkInput'].value = finalLink;
+            document.getElementById('resultLinkInput').value = finalLink;
             document.getElementById('resultBox').style.display = 'block';
         }
     </script>
