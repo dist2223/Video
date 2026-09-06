@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перегляд відео</title>
+    <title>Плеєр та Генератор посилань</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,6 +14,64 @@
             height: 100vh;
             margin: 0;
         }
+        /* Стилі для генератора (коли ви створюєте посилання) */
+        .generator-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .generator-card h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 22px;
+        }
+        .generator-card input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .generator-card button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .generator-card button:hover {
+            background-color: #0056b3;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+            word-break: break-all;
+            display: none;
+            text-align: left;
+            font-size: 14px;
+        }
+        .result-box input {
+            width: 100%;
+            margin-top: 5px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: #fff;
+        }
+
+        /* Стилі для плеєра (коли переходять студенти) */
         .video-container {
             position: relative;
             display: inline-block;
@@ -21,9 +79,8 @@
             border-radius: 8px;
             overflow: hidden;
             background: #000;
-            display: none; /* Приховано за замовчуванням */
+            display: none;
         }
-        /* Прозорий шар для блокування контекстного меню */
         .video-overlay {
             position: absolute;
             top: 0;
@@ -47,31 +104,46 @@
 </head>
 <body>
 
+    <!-- ІНТЕРФЕЙС ГЕНЕРАТОРА (видно тільки вам, якщо відкрити сайт безпосередньо) -->
+    <div class="generator-card" id="generatorCard">
+        <h2>Генератор посилань на відео</h2>
+        <p style="color: #666; font-size: 14px;">Вставте посилання на файл з Google Диска:</p>
+        <input type="text" id="driveLinkInput" placeholder="https://drive.google.com/file/d/.../view?usp=sharing">
+        <button onclick="generateLink()">Згенерувати посилання</button>
+        
+        <div class="result-box" id="resultBox">
+            <strong>Готове посилання для студентів:</strong>
+            <input type="text" id="resultLinkInput" readonly onclick="this.select()">
+            <p style="font-size: 12px; color: #666; margin-top: 8px; margin-bottom: 0;">Натисніть на поле, щоб виділити, та скопіюйте посилання.</p>
+        </div>
+    </div>
+
+    <!-- ІНТЕРФЕЙС ПЛЕЄРА (видно студентам, коли переходять за згенерованим посиланням) -->
     <div class="video-container" id="videoContainer" oncontextmenu="return false;">
         <div class="video-overlay"></div>
         <iframe id="videoFrame" width="640" height="360" allow="autoplay"></iframe>
     </div>
 
     <div id="errorMessage" class="error-message">
-        Помилка: перевірте правильність посилання на відео у строці браузера.
+        Помилка: невірне посилання на відео.
     </div>
 
     <script>
-        // Функція автоматично витягує ID з повного посилання Google Диска
+        // Функція витягування ID з посилання Гугл Диска
         function extractDriveId(url) {
             const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             return match ? match[1] : null;
         }
 
-        // Зчитуємо параметр ?url= з адресного рядка
         const urlParams = new URLSearchParams(window.location.search);
         const fullLink = urlParams.get('url');
 
         if (fullLink) {
-            const fileId = extractDriveId(fullLink);
+            // Режим ПЛЕЄРА: якщо в адресі є параметр ?url=
+            document.getElementById('generatorCard').style.display = 'none';
             
+            const fileId = extractDriveId(fullLink);
             if (fileId) {
-                // Якщо ID успішно знайдено, вбудовуємо його у відеоплеєр
                 const iframe = document.getElementById('videoFrame');
                 iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
                 document.getElementById('videoContainer').style.display = 'inline-block';
@@ -79,7 +151,26 @@
                 document.getElementById('errorMessage').style.display = 'block';
             }
         } else {
-            document.getElementById('errorMessage').style.display = 'block';
+            // Режим ГЕНЕРАТОРА: якщо параметрів немає, показуємо форму
+            document.getElementById('generatorCard').style.display = 'block';
+        }
+
+        // Логіка генерації посилання кнопкою
+        function generateLink() {
+            const inputVal = document.getElementById('driveLinkInput').value.trim();
+            const fileId = extractDriveId(inputVal);
+
+            if (!fileId) {
+                alert('Будь ласка, введіть коректне посилання на Google Диск!');
+                return;
+            }
+
+            // Формуємо посилання на основі поточної адреси вашого GitHub Pages сайту
+            const baseUrl = window.location.href.split('?')[0];
+            const finalLink = `${baseUrl}?url=${encodeURIComponent(inputVal)}`;
+
+            document.getElementById('resultLinkInput').value = finalLink;
+            document.getElementById('resultBox').style.display = 'block';
         }
     </script>
 
