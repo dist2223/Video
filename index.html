@@ -21,8 +21,9 @@
             border-radius: 8px;
             overflow: hidden;
             background: #000;
+            display: none; /* Приховано за замовчуванням */
         }
-        /* Прозорий шар для блокування кліків правою кнопкою миші */
+        /* Прозорий шар для блокування контекстного меню */
         .video-overlay {
             position: absolute;
             top: 0;
@@ -35,17 +36,52 @@
             display: block;
             border: none;
         }
+        .error-message {
+            color: #d9534f;
+            font-size: 18px;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="video-container" oncontextmenu="return false;">
+    <div class="video-container" id="videoContainer" oncontextmenu="return false;">
         <div class="video-overlay"></div>
-        <iframe src="https://drive.google.com/file/d/1JFeuAAzUXAHb3Mh1Hv6NjwsB8GDjjqoW/preview" 
-                width="640" height="360" 
-                allow="autoplay">
-        </iframe>
+        <iframe id="videoFrame" width="640" height="360" allow="autoplay"></iframe>
     </div>
+
+    <div id="errorMessage" class="error-message">
+        Помилка: перевірте правильність посилання на відео у строці браузера.
+    </div>
+
+    <script>
+        // Функція автоматично витягує ID з повного посилання Google Диска
+        function extractDriveId(url) {
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        // Зчитуємо параметр ?url= з адресного рядка
+        const urlParams = new URLSearchParams(window.location.search);
+        const fullLink = urlParams.get('url');
+
+        if (fullLink) {
+            const fileId = extractDriveId(fullLink);
+            
+            if (fileId) {
+                // Якщо ID успішно знайдено, вбудовуємо його у відеоплеєр
+                const iframe = document.getElementById('videoFrame');
+                iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+                document.getElementById('videoContainer').style.display = 'inline-block';
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        } else {
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+    </script>
 
 </body>
 </html>
