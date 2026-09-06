@@ -84,13 +84,24 @@
             display: none;
         }
         
-        /* Захисний шар на всю нижню панель плеєра */
-        .bottom-panel-blocker {
+        /* 1. Блокувальник на правий верхній кут (кнопка "Відкрити в новому вікні") */
+        .top-right-blocker {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 70px;
+            height: 70px;
+            z-index: 20;
+            background: transparent;
+        }
+
+        /* 2. Точковий блокувальник на меню налаштувань / швидкість (правий нижній кут панелі) */
+        .settings-blocker {
             position: absolute;
             bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
+            right: 70px; /* Зміщено лівіше, щоб залишити місце для кнопки повного екрана */
+            width: 70px;
+            height: 50px;
             z-index: 20;
             background: transparent;
         }
@@ -134,7 +145,8 @@
 
     <!-- ПЛЕЄР -->
     <div class="video-container" id="videoContainer" oncontextmenu="return false;">
-        <div class="bottom-panel-blocker"></div>
+        <div class="top-right-blocker"></div>
+        <div class="settings-blocker"></div>
         <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
     </div>
 
@@ -172,7 +184,7 @@
             const fileId = extractDriveId(inputVal);
 
             if (!fileId) {
-                alert('Помилка! Переконайтеся, що ви повністю скопіювали та вставили посилання з Google Диска (воно має містити /d/ та ID файлу).');
+                alert('Помилка! Переконайтеся, що ви повністю скопіювали та вставили посилання з Google Диска.');
                 return;
             }
 
