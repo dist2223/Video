@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Плеєр та Генератор посилань</title>
+    <title>Захищений перегляд відео</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -82,16 +82,18 @@
             background: #000;
             display: none;
         }
-        /* Зменшуємо захисний шар, щоб він не перекривав кнопку Play по центру */
-        .video-overlay {
+        
+        /* Точковий захисний блок на правий нижній кут (де налаштування швидкості/шестерня) */
+        .settings-blocker {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 75%; /* Зменшено, щоб центр був клікабельним */
-            z-index: 10;
-            pointer-events: auto;
+            bottom: 0;
+            right: 0;
+            width: 140px; /* Ширина області налаштувань */
+            height: 50px; /* Висота панелі керування */
+            z-index: 20;
+            background: transparent; /* Можна тимчасово змінити на rgba(255,0,0,0.3) для перевірки */
         }
+
         iframe {
             width: 100%;
             height: 100%;
@@ -128,13 +130,14 @@
 
     <!-- ПЛЕЄР -->
     <div class="video-container" id="videoContainer" oncontextmenu="return false;">
-        <div class="video-overlay"></div>
+        <!-- Прозорий щит поверх кнопки налаштувань у правому нижньому кутку -->
+        <div class="settings-blocker"></div>
         <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
     </div>
 
     <!-- ПОМИЛКА -->
     <div id="errorMessage" class="error-message">
-        <strong>Помилка:</strong> Невірне посилання або файл не знайдено. Перевірте, чи посилання містить ID файлу та чи відкрито загальний доступ на Google Диску.
+        <strong>Помилка:</strong> Невірне посилання або файл не знайдено. Перевірте доступ на Google Диску.
     </div>
 
     <script>
