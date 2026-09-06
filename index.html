@@ -11,10 +11,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
-        /* Стилі для генератора (коли ви створюєте посилання) */
         .generator-card {
             background: #ffffff;
             padding: 30px;
@@ -71,11 +70,13 @@
             background: #fff;
         }
 
-        /* Стилі для плеєра (коли переходять студенти) */
+        /* Стилі для плеєра */
         .video-container {
             position: relative;
-            display: inline-block;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border-radius: 8px;
             overflow: hidden;
             background: #000;
@@ -90,8 +91,10 @@
             z-index: 10;
         }
         iframe {
-            display: block;
+            width: 100%;
+            height: 100%;
             border: none;
+            display: block;
         }
         .error-message {
             color: #d9534f;
@@ -99,12 +102,15 @@
             text-align: center;
             padding: 20px;
             display: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
 
-    <!-- ІНТЕРФЕЙС ГЕНЕРАТОРА (видно тільки вам, якщо відкрити сайт безпосередньо) -->
+    <!-- ГЕНЕРАТОР -->
     <div class="generator-card" id="generatorCard">
         <h2>Генератор посилань на відео</h2>
         <p style="color: #666; font-size: 14px;">Вставте посилання на файл з Google Диска:</p>
@@ -118,18 +124,18 @@
         </div>
     </div>
 
-    <!-- ІНТЕРФЕЙС ПЛЕЄРА (видно студентам, коли переходять за згенерованим посиланням) -->
+    <!-- ПЛЕЄР -->
     <div class="video-container" id="videoContainer" oncontextmenu="return false;">
         <div class="video-overlay"></div>
-        <iframe id="videoFrame" width="640" height="360" allow="autoplay"></iframe>
+        <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
     </div>
 
+    <!-- ПОМИЛКА -->
     <div id="errorMessage" class="error-message">
-        Помилка: невірне посилання на відео.
+        <strong>Помилка:</strong> Невірне посилання або файл не знайдено. Перевірте, чи посилання містить ID файлу та чи відкрито загальний доступ на Google Диску.
     </div>
 
     <script>
-        // Функція витягування ID з посилання Гугл Диска
         function extractDriveId(url) {
             const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             return match ? match[1] : null;
@@ -139,23 +145,20 @@
         const fullLink = urlParams.get('url');
 
         if (fullLink) {
-            // Режим ПЛЕЄРА: якщо в адресі є параметр ?url=
             document.getElementById('generatorCard').style.display = 'none';
             
             const fileId = extractDriveId(fullLink);
             if (fileId) {
                 const iframe = document.getElementById('videoFrame');
                 iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-                document.getElementById('videoContainer').style.display = 'inline-block';
+                document.getElementById('videoContainer').style.display = 'block';
             } else {
                 document.getElementById('errorMessage').style.display = 'block';
             }
         } else {
-            // Режим ГЕНЕРАТОРА: якщо параметрів немає, показуємо форму
             document.getElementById('generatorCard').style.display = 'block';
         }
 
-        // Логіка генерації посилання кнопкою
         function generateLink() {
             const inputVal = document.getElementById('driveLinkInput').value.trim();
             const fileId = extractDriveId(inputVal);
@@ -165,7 +168,6 @@
                 return;
             }
 
-            // Формуємо посилання на основі поточної адреси вашого GitHub Pages сайту
             const baseUrl = window.location.href.split('?')[0];
             const finalLink = `${baseUrl}?url=${encodeURIComponent(inputVal)}`;
 
