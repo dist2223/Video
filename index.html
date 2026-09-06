@@ -83,15 +83,15 @@
             display: none;
         }
         
-        /* Точковий захисний блок на правий нижній кут (де налаштування швидкості/шестерня) */
-        .settings-blocker {
+        /* Захисний шар на всю нижню панель плеєра (висота 60 пікселів знизу) */
+        .bottom-panel-blocker {
             position: absolute;
             bottom: 0;
-            right: 0;
-            width: 140px; /* Ширина області налаштувань */
-            height: 50px; /* Висота панелі керування */
+            left: 0;
+            width: 100%;
+            height: 60px;
             z-index: 20;
-            background: transparent; /* Можна тимчасово змінити на rgba(255,0,0,0.3) для перевірки */
+            background: transparent; /* Можна змінити на rgba(255,0,0,0.4) для тесту */
         }
 
         iframe {
@@ -130,8 +130,8 @@
 
     <!-- ПЛЕЄР -->
     <div class="video-container" id="videoContainer" oncontextmenu="return false;">
-        <!-- Прозорий щит поверх кнопки налаштувань у правому нижньому кутку -->
-        <div class="settings-blocker"></div>
+        <!-- Невидимий щит поверх усієї нижньої панелі керування -->
+        <div class="bottom-panel-blocker"></div>
         <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
     </div>
 
@@ -176,7 +176,7 @@
             const baseUrl = window.location.href.split('?')[0];
             const finalLink = `${baseUrl}?url=${encodeURIComponent(inputVal)}`;
 
-            document.getElementById('resultLinkInput').value = finalLink;
+            document.getElementById('resultLinkInput'].value = finalLink;
             document.getElementById('resultBox').style.display = 'block';
         }
     </script>
