@@ -82,13 +82,15 @@
             background: #000;
             display: none;
         }
+        /* Зменшуємо захисний шар, щоб він не перекривав кнопку Play по центру */
         .video-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 85%;
+            height: 75%; /* Зменшено, щоб центр був клікабельним */
             z-index: 10;
+            pointer-events: auto;
         }
         iframe {
             width: 100%;
