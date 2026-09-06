@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -71,20 +72,38 @@
             background: #fff;
         }
 
+        /* Обгортка для плеєра та власних елементів керування */
+        .player-wrapper {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
         /* Стилі для плеєра */
         .video-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
             aspect-ratio: 16 / 9;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            border-radius: 8px 8px 0 0;
             overflow: hidden;
             background: #000;
-            display: none;
         }
         
-        /* 1. Блокувальник на правий верхній кут (кнопка "Відкрити в новому вікні") */
+        /* Повний захисний шар на всю нижню панель Google Диска */
+        .bottom-panel-blocker {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 20;
+            background: transparent;
+        }
+
+        /* Захисний шар на правий верхній кут (кнопка "Відкрити в новому вікні") */
         .top-right-blocker {
             position: absolute;
             top: 0;
@@ -95,23 +114,40 @@
             background: transparent;
         }
 
-        /* 2. Точковий блокувальник на меню налаштувань / швидкість (правий нижній кут панелі) */
-        .settings-blocker {
-            position: absolute;
-            bottom: 0;
-            right: 70px; /* Зміщено лівіше, щоб залишити місце для кнопки повного екрана */
-            width: 70px;
-            height: 50px;
-            z-index: 20;
-            background: transparent;
-        }
-
         iframe {
             width: 100%;
             height: 100%;
             border: none;
             display: block;
         }
+
+        /* Панель під відео з власною кнопкою повного екрана */
+        .custom-controls {
+            width: 100%;
+            background: #222;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            border-radius: 0 0 8px 8px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .fullscreen-btn {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: #007bff;
+        }
+
         .error-message {
             color: #d9534f;
             font-size: 18px;
@@ -143,11 +179,16 @@
         </div>
     </div>
 
-    <!-- ПЛЕЄР -->
-    <div class="video-container" id="videoContainer" oncontextmenu="return false;">
-        <div class="top-right-blocker"></div>
-        <div class="settings-blocker"></div>
-        <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
+    <!-- ПЛЕЄР ТА ПАНЕЛЬ -->
+    <div class="player-wrapper" id="playerWrapper">
+        <div class="video-container" id="videoContainer" oncontextmenu="return false;">
+            <div class="top-right-blocker"></div>
+            <div class="bottom-panel-blocker"></div>
+            <iframe id="videoFrame" allow="autoplay" allowfullscreen></iframe>
+        </div>
+        <div class="custom-controls">
+            <button class="fullscreen-btn" id="fullscreenBtn">⛶ На весь екран</button>
+        </div>
     </div>
 
     <!-- ПОМИЛКА -->
@@ -169,13 +210,31 @@
             if (fileId) {
                 const iframe = document.getElementById('videoFrame');
                 iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-                document.getElementById('videoContainer').style.display = 'block';
+                document.getElementById('playerWrapper').style.display = 'flex';
             } else {
                 document.getElementById('errorMessage').style.display = 'block';
             }
         } else {
             document.getElementById('generatorCard').style.display = 'block';
         }
+
+        // Логіка власної кнопки повного екрана (розгортає весь блок із плеєром)
+        document.getElementById('fullscreenBtn').addEventListener('click', function() {
+            const wrapper = document.getElementById('playerWrapper');
+            if (!document.fullscreenElement) {
+                if (wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen();
+                } else if (wrapper.webkitRequestFullscreen) {
+                    wrapper.webkitRequestFullscreen();
+                } else if (wrapper.msRequestFullscreen) {
+                    wrapper.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
 
         document.getElementById('generateBtn').addEventListener('click', function(e) {
             e.preventDefault();
